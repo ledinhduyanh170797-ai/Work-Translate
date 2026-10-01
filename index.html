@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="manifest.json">
+<title>Work Translate</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--dark:#111827}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.app{max-width:680px;min-height:100vh;margin:auto;padding:18px 16px 22px;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:12px;padding:5px 2px 18px}.logo{width:46px;height:46px;border-radius:14px}.title{font-size:23px;font-weight:800}.sub{font-size:13px;color:var(--muted);margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 4px 18px #0000000a}
+textarea{display:block;width:100%;min-height:165px;border:0;outline:0;resize:none;padding:18px;background:transparent;color:inherit;font:inherit;font-size:17px;line-height:1.55}
+textarea::placeholder{color:#9ca3af}.bar{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:10px 12px;gap:8px}
+.hint{font-size:12px;color:var(--muted)}button{border:0;border-radius:12px;padding:11px 15px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--dark);color:#fff}.secondary{background:#eef0f3;color:var(--text)}
+.preview{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px}.label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.08em;margin-bottom:9px}
+#prompt{font-size:15px;line-height:1.5;white-space:pre-wrap;min-height:90px}.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.status{text-align:center;min-height:20px;margin:10px 0;font-size:12px;color:var(--muted)}footer{margin-top:auto;text-align:center;color:#9ca3af;font-size:11px;padding-top:14px}
+@media(prefers-color-scheme:dark){:root{--bg:#0b0f14;--card:#151a21;--text:#f3f4f6;--muted:#9ca3af;--line:#29303a}.secondary{background:#252b34;color:#f3f4f6}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><img class="logo" src="icon-512.png"><div><div class="title">Work Translate</div><div class="sub">Việt ↔ English · Free workflow</div></div></header>
+
+<section class="card">
+<textarea id="input" placeholder="Nhập tiếng Việt hoặc English..."></textarea>
+<div class="bar"><span class="hint">AI tự nhận diện ngôn ngữ</span><button class="primary" id="make">Tạo prompt</button></div>
+</section>
+
+<section class="preview">
+<div class="label">PROMPT CHO CHATGPT</div>
+<div id="prompt">Nhập câu ở trên rồi bấm “Tạo prompt”.</div>
+<div class="actions">
+<button class="secondary" id="copyOriginal">📋 Copy câu</button>
+<button class="primary" id="copyPrompt">📋 Copy prompt</button>
+<button class="secondary" id="openChat">↗ Mở ChatGPT</button>
+</div>
+</section>
+
+<div id="status" class="status"></div>
+<footer>Work Translate · v1.2 · Không cần API</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id), input=$('input'), prompt=$('prompt'), status=$('status');
+function setStatus(x){status.textContent=x}
+function makePrompt(){
+ const t=input.value.trim();
+ if(!t){setStatus('Hãy nhập câu cần dịch.');input.focus();return ''}
+ const p=`Dịch câu sau sang ngôn ngữ còn lại (Việt ↔ English). Nếu là tiếng Việt, dịch sang English tự nhiên để nhắn tin công việc. Nếu là English, dịch sang tiếng Việt văn nói, tự nhiên trong công việc. Giữ nguyên thuật ngữ kỹ thuật, tên file, part number, Vault, CAD, model, drawing, checkout/check out, tank, silo, assembly... nếu phù hợp. Chỉ trả về câu dịch, không giải thích, không đặt trong dấu ngoặc kép.
+
+Câu cần dịch:
+${t}`;
+ prompt.textContent=p;setStatus('Đã tạo prompt ✓');return p;
+}
+$('make').onclick=makePrompt;
+input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();makePrompt()}});
+async function cp(text){if(!text)return;try{await navigator.clipboard.writeText(text)}catch{const x=document.createElement('textarea');x.value=text;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove()}setStatus('Đã copy ✓')}
+$('copyOriginal').onclick=()=>cp(input.value.trim());
+$('copyPrompt').onclick=()=>cp(prompt.textContent.startsWith('Nhập câu')?'':prompt.textContent);
+$('openChat').onclick=()=>window.open('https://chatgpt.com/','_blank');
+</script>
+</body>
+</html>
